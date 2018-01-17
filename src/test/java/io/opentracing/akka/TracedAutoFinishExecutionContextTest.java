@@ -14,6 +14,8 @@ import io.opentracing.Span;
 import io.opentracing.tag.Tags;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
+import io.opentracing.util.AutoFinishScope;
+import io.opentracing.util.AutoFinishScopeManager;
 import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.After;
 import org.junit.Before;
