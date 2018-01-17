@@ -1,3 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2017-2018 The OpenTracing Authors
+
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+    in compliance with the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software distributed under the License
+    is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing permissions and limitations under
+    the License.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -5,9 +21,40 @@
   <artifactId>opentracing-akka</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
+
+    <!-- default bytecode version for src/main -->
+    <main.java.version>1.8</main.java.version>
+    <main.signature.artifact>java18</main.signature.artifact>
+
+    <!-- default bytecode version for src/test -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+
+    <main.basedir>${project.basedir}</main.basedir>
+
+    <opentracing.version>0.31.0</opentracing.version>
+    <akka.version>2.5.3</akka.version>
+    <org.awaitility.version>3.0.0</org.awaitility.version>
+    <junit.version>4.12</junit.version>
+
+    <!-- plugins -->
+    <centralsync-maven-plugin.version>0.1.0</centralsync-maven-plugin.version>
+    <takari-maven.version>0.3.4</takari-maven.version>
+    <license-maven-plugin.version>3.0</license-maven-plugin.version>
+    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+  </properties>
+
   <name>${project.groupId}:${project.artifactId}</name>
-  <description>OpenTracing Instrumentation for RxJava</description>
+  <description>OpenTracing Instrumentation for Akka</description>
   <url>https://github.com/opentracing-contrib/java-akka</url>
+  <inceptionYear>2017</inceptionYear>
 
   <licenses>
     <license>
@@ -17,68 +64,246 @@
     </license>
   </licenses>
 
-  <properties>
-    <java.version>1.8</java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
+  <scm>
+    <url>https://github.com/opentracing-contrib/java-akka</url>
+    <connection>scm:git:https://github.com/opentracing-contrib/java-akka.git</connection>
+    <developerConnection>scm:git:https://github.com/opentracing-contrib/java-akka.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
 
-    <opentracing.version>0.31.0</opentracing.version>
-  </properties>
+  <!-- Developer section is needed for Maven Central, but doesn't need to include each person -->
+  <developers>
+    <developer>
+      <id>opentracing</id>
+      <name>OpenTracing Gitter</name>
+      <url>https://gitter.im/opentracing/public</url>
+    </developer>
+  </developers>
+
+  <distributionManagement>
+    <repository>
+      <id>bintray</id>
+      <url>https://api.bintray.com/maven/opentracing/maven/opentracing-akka/;publish=1</url>
+    </repository>
+    <snapshotRepository>
+      <id>jfrog-snapshots</id>
+      <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <issueManagement>
+    <system>Github</system>
+    <url>https://github.com/opentracing-contrib/java-akka/issues</url>
+  </issueManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-api</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-noop</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-util</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentracing</groupId>
+        <artifactId>opentracing-mock</artifactId>
+        <version>${opentracing.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-actor_2.12</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>${org.awaitility.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
       <groupId>io.opentracing</groupId>
       <artifactId>opentracing-api</artifactId>
-      <version>${opentracing.version}</version>
     </dependency>
 
     <dependency>
       <groupId>io.opentracing</groupId>
       <artifactId>opentracing-mock</artifactId>
-      <version>${opentracing.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>io.opentracing</groupId>
       <artifactId>opentracing-util</artifactId>
-      <version>${opentracing.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-actor_2.12</artifactId>
-      <version>2.5.3</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
         <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
-        <version>3.0.0</version>
         <scope>test</scope>
     </dependency>
 
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.0 -->
+        <plugin>
+          <groupId>io.takari</groupId>
+          <artifactId>maven</artifactId>
+          <version>${takari-maven.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
+    <!-- Ensures checksums are added to published jars -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.2</version>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>${maven-install-plugin.version}</version>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
+          <createChecksum>true</createChecksum>
         </configuration>
       </plugin>
+
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>${maven-release-plugin.version}</version>
+        <configuration>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>${license-maven-plugin.version}</version>
+        <configuration>
+          <header>${main.basedir}/src/etc/header.txt</header>
+          <mapping>
+            <java>SLASHSTAR_STYLE</java>
+          </mapping>
+          <excludes>
+            <exclude>.travis.yml</exclude>
+            <exclude>.coveralls.yml</exclude>
+            <exclude>.gitignore</exclude>
+            <exclude>.mvn/**</exclude>
+            <exclude>mvnw*</exclude>
+            <exclude>etc/header.txt</exclude>
+            <exclude>**/.idea/**</exclude>
+            <exclude>LICENSE</exclude>
+            <exclude>**/*.md</exclude>
+            <exclude>src/test/resources/**</exclude>
+            <exclude>src/main/resources/**</exclude>
+          </excludes>
+          <strictCheck>true</strictCheck>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin-git</artifactId>
+            <version>${license-maven-plugin.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>io.zipkin.centralsync-maven-plugin</groupId>
+        <artifactId>centralsync-maven-plugin</artifactId>
+        <version>${centralsync-maven-plugin.version}</version>
+        <configuration>
+          <subject>opentracing</subject>
+          <repo>maven</repo>
+          <packageName>opentracing-akka</packageName>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <!-- Creates source jar -->
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Creates javadoc jar -->
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <failOnError>false</failOnError>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
