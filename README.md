@@ -150,3 +150,4 @@ Future<String> f = ask(myActorRef, TracedMessage.wrap(span, "hello"), timeout);
 ```
 
   [ci-img]: https://travis-ci.org/opentracing-contrib/java-akka.svg?branch=master
+  [ci]: https://travis-ci.org/opentracing-contrib/java-akka
