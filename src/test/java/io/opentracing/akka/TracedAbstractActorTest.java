@@ -24,7 +24,9 @@ import io.opentracing.mock.MockTracer;
 import io.opentracing.util.GlobalTracer;
 import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -43,6 +45,8 @@ public class TracedAbstractActorTest {
 
     @Before
     public void before() throws Exception {
+        TestUtils.resetGlobalTracer(); // safe start, just in case.
+
         mockTracer.reset();
         GlobalTracer.register(mockTracer);
 
@@ -51,8 +55,9 @@ public class TracedAbstractActorTest {
 
     @After
     public void after() throws Exception {
-        TestUtils.resetGlobalTracer();
-        system.terminate(); // TODO - wait for actual termination?
+        TestUtils.resetGlobalTracer(); // clean up.
+
+        Await.result(system.terminate(), TestUtils.getDefaultDuration());
     }
 
     static abstract class TestActor extends TracedAbstractActor {

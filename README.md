@@ -1,3 +1,5 @@
+[![Build Status][ci-img]][ci]
+
 # OpenTracing Akka Instrumentation
 OpenTracing instrumentation for Akka.
 
@@ -146,3 +148,5 @@ class MyActor extends TracedAbstractActor {
 Span span = tracer.buildSpan("foo").start();
 Future<String> f = ask(myActorRef, TracedMessage.wrap(span, "hello"), timeout);
 ```
+
+  [ci-img]: https://travis-ci.org/opentracing-contrib/java-akka.svg?branch=master
