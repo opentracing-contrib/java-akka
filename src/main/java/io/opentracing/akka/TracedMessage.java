@@ -13,9 +13,7 @@
  */
 package io.opentracing.akka;
 
-import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 
 public final class TracedMessage<T> {

@@ -13,25 +13,22 @@
  */
 package io.opentracing.akka;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
 import akka.dispatch.OnComplete;
 import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.tag.Tags;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.ThreadLocalScopeManager;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import scala.concurrent.Await;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import static akka.dispatch.Futures.future;
 import static org.awaitility.Awaitility.await;

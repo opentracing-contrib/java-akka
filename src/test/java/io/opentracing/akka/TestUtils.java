@@ -13,16 +13,15 @@
  */
 package io.opentracing.akka;
 
-import java.util.concurrent.Callable;
-import java.lang.reflect.Field;
-
 import akka.util.Timeout;
+import io.opentracing.mock.MockTracer;
+import io.opentracing.noop.NoopTracerFactory;
+import io.opentracing.util.GlobalTracer;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 
-import io.opentracing.noop.NoopTracerFactory;
-import io.opentracing.mock.MockTracer;
-import io.opentracing.util.GlobalTracer;
+import java.lang.reflect.Field;
+import java.util.concurrent.Callable;
 
 public final class TestUtils {
     private TestUtils() {}

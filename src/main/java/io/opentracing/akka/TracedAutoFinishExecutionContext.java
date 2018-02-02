@@ -13,19 +13,12 @@
  */
 package io.opentracing.akka;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.dispatch.OnComplete;
+import io.opentracing.Scope;
+import io.opentracing.Tracer;
+import io.opentracing.util.AutoFinishScope;
+import io.opentracing.util.GlobalTracer;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.ExecutionContextExecutor;
-
-import io.opentracing.Scope;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.tag.Tags;
-import io.opentracing.util.AutoFinishScope;
-import io.opentracing.util.AutoFinishScopeManager;
-import io.opentracing.util.GlobalTracer;
 
 public final class TracedAutoFinishExecutionContext implements ExecutionContextExecutor {
     final ExecutionContext ec;

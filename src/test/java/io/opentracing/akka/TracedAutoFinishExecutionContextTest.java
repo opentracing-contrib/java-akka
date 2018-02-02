@@ -13,39 +13,31 @@
  */
 package io.opentracing.akka;
 
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.Callable;
-
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.tag.Tags;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
-import io.opentracing.util.AutoFinishScope;
 import io.opentracing.util.AutoFinishScopeManager;
-import io.opentracing.util.ThreadLocalScopeManager;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import scala.concurrent.Await;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import static akka.dispatch.Futures.future;
 import static akka.dispatch.Futures.sequence;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class TracedAutoFinishExecutionContextTest {
     final MockTracer mockTracer = new MockTracer(new AutoFinishScopeManager(),

@@ -13,17 +13,12 @@
  */
 package io.opentracing.akka;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.dispatch.OnComplete;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.ExecutionContextExecutor;
-
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.ExecutionContextExecutor;
 
 public final class TracedExecutionContext implements ExecutionContextExecutor {
     final ExecutionContext ec;

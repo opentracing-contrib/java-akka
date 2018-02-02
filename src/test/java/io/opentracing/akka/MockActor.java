@@ -13,12 +13,12 @@
  */
 package io.opentracing.akka;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.actor.Status;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MockActor extends AbstractActor
 {

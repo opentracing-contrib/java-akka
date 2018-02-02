@@ -14,13 +14,12 @@
 package io.opentracing.akka;
 
 import akka.actor.AbstractActor;
-import scala.PartialFunction;
-import scala.runtime.BoxedUnit;
-
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
+import scala.PartialFunction;
+import scala.runtime.BoxedUnit;
 
 public abstract class TracedAbstractActor extends AbstractActor {
     Tracer tracer;
