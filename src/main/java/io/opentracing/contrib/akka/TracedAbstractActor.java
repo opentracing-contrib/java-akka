@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.akka;
+package io.opentracing.contrib.akka;
 
 import akka.actor.AbstractActor;
 import io.opentracing.Scope;
@@ -22,6 +22,7 @@ import scala.PartialFunction;
 import scala.runtime.BoxedUnit;
 
 public abstract class TracedAbstractActor extends AbstractActor {
+
     Tracer tracer;
 
     public TracedAbstractActor() {
@@ -43,7 +44,7 @@ public abstract class TracedAbstractActor extends AbstractActor {
             return;
         }
 
-        TracedMessage tracedMessage = (TracedMessage)message;
+        TracedMessage tracedMessage = (TracedMessage) message;
         Span span = tracedMessage.activeSpan();
         Object originalMessage = tracedMessage.message();
 
