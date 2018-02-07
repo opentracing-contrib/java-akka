@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.opentracing.contrib</groupId>
   <artifactId>opentracing-akka</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -67,7 +67,7 @@
     <url>https://github.com/opentracing-contrib/java-akka</url>
     <connection>scm:git:https://github.com/opentracing-contrib/java-akka.git</connection>
     <developerConnection>scm:git:https://github.com/opentracing-contrib/java-akka.git</developerConnection>
-    <tag>0.0.2</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <!-- Developer section is needed for Maven Central, but doesn't need to include each person -->
