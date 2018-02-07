@@ -3,6 +3,17 @@
 # OpenTracing Akka Instrumentation
 OpenTracing instrumentation for Akka.
 
+## Installation
+
+pom.xml
+```xml
+<dependency>
+    <groupId>io.opentracing.contrib</groupId>
+    <artifactId>opentracing-akka</artifactId>
+    <version>VERSION</version>
+</dependency>
+```
+
 ## Usage
 
 ### Actor's Span propagation (experimental design)
