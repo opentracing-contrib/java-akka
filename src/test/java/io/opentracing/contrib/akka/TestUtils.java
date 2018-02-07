@@ -11,20 +11,21 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.akka;
+package io.opentracing.contrib.akka;
 
 import akka.util.Timeout;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.util.GlobalTracer;
+import java.lang.reflect.Field;
+import java.util.concurrent.Callable;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 
-import java.lang.reflect.Field;
-import java.util.concurrent.Callable;
-
 public final class TestUtils {
-    private TestUtils() {}
+
+    private TestUtils() {
+    }
 
     public final static int DEFAULT_TIMEOUT = 3;
     public final static int DEFAULT_CALLBACK_SYNC_TIMEOUT = 1;
@@ -54,7 +55,8 @@ public final class TestUtils {
             globalTracerField.set(null, NoopTracerFactory.create());
             globalTracerField.setAccessible(false);
         } catch (Exception e) {
-            throw new IllegalStateException("Error reflecting GlobalTracer.tracer: " + e.getMessage(), e);
+            throw new IllegalStateException(
+                    "Error reflecting GlobalTracer.tracer: " + e.getMessage(), e);
         }
     }
 }

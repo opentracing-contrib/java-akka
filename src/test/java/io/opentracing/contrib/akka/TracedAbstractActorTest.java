@@ -11,7 +11,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.akka;
+package io.opentracing.contrib.akka;
+
+import static akka.pattern.Patterns.ask;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -28,16 +32,13 @@ import org.junit.Test;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-import static akka.pattern.Patterns.ask;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class TracedAbstractActorTest {
+
     final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
     ActorSystem system;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         TestUtils.resetGlobalTracer(); // safe start, just in case.
 
         mockTracer.reset();
@@ -54,6 +55,7 @@ public class TracedAbstractActorTest {
     }
 
     static abstract class TestActor extends TracedAbstractActor {
+
         public TestActor() {
             super(GlobalTracer.get());
         }
@@ -64,6 +66,7 @@ public class TracedAbstractActorTest {
     }
 
     static class SpanNullCheckActor extends TestActor {
+
         public static Props props() {
             return Props.create(SpanNullCheckActor.class, () -> new SpanNullCheckActor());
         }
@@ -71,10 +74,10 @@ public class TracedAbstractActorTest {
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-                .matchAny(x -> {
-                    getSender().tell(tracer().scopeManager().active() == null, getSelf());
-                })
-                .build();
+                    .matchAny(x -> {
+                        getSender().tell(tracer().scopeManager().active() == null, getSelf());
+                    })
+                    .build();
         }
     }
 
@@ -84,11 +87,12 @@ public class TracedAbstractActorTest {
         Timeout timeout = new Timeout(TestUtils.getDefaultDuration());
         Future<Object> future = ask(actorRef, TracedMessage.wrap("foo"), timeout);
 
-        Boolean isSpanNull = (Boolean)Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isSpanNull = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
         assertTrue(isSpanNull);
     }
 
     static class SpanCheckActor extends TestActor {
+
         public static Props props() {
             return Props.create(SpanCheckActor.class, () -> new SpanCheckActor());
         }
@@ -96,12 +100,12 @@ public class TracedAbstractActorTest {
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-                .matchAny(x -> {
-                    Scope scope = tracer().scopeManager().active();
-                    boolean isSameSpan = scope == null ? false : scope.span().equals(x);
-                    getSender().tell(isSameSpan, getSelf());
-                })
-                .build();
+                    .matchAny(x -> {
+                        Scope scope = tracer().scopeManager().active();
+                        boolean isSameSpan = scope == null ? false : scope.span().equals(x);
+                        getSender().tell(isSameSpan, getSelf());
+                    })
+                    .build();
         }
     }
 
@@ -116,7 +120,7 @@ public class TracedAbstractActorTest {
             future = ask(actorRef, message, timeout);
         }
 
-        Boolean isSpanSame = (Boolean)Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isSpanSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
         assertTrue(isSpanSame);
     }
 
@@ -132,11 +136,12 @@ public class TracedAbstractActorTest {
             future = ask(actorRef, scope.span(), timeout);
         }
 
-        Boolean isSpanSame = (Boolean)Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isSpanSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
         assertFalse(isSpanSame);
     }
 
     static class TracerCheckActor extends TestActor {
+
         public TracerCheckActor() {
             super();
         }
@@ -148,6 +153,7 @@ public class TracedAbstractActorTest {
         public static Props props() {
             return Props.create(TracerCheckActor.class, () -> new TracerCheckActor());
         }
+
         public static Props props(Tracer tracer) {
             return Props.create(TracerCheckActor.class, () -> new TracerCheckActor(tracer));
         }
@@ -155,10 +161,10 @@ public class TracedAbstractActorTest {
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-                .matchAny(x -> {
-                    getSender().tell(tracer() == x, getSelf());
-                })
-                .build();
+                    .matchAny(x -> {
+                        getSender().tell(tracer() == x, getSelf());
+                    })
+                    .build();
         }
     }
 
@@ -172,7 +178,7 @@ public class TracedAbstractActorTest {
             future = ask(actorRef, mockTracer, timeout);
         }
 
-        Boolean isTracerSame = (Boolean)Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isTracerSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
         assertTrue(isTracerSame);
     }
 
@@ -186,7 +192,7 @@ public class TracedAbstractActorTest {
             future = ask(actorRef, GlobalTracer.get(), timeout);
         }
 
-        Boolean isTracerSame = (Boolean)Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isTracerSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
         assertTrue(isTracerSame);
     }
 }

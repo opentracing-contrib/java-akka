@@ -11,12 +11,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.akka;
+package io.opentracing.contrib.akka;
 
 import io.opentracing.Span;
 import io.opentracing.util.GlobalTracer;
 
 public final class TracedMessage<T> {
+
     private T message;
     private Span activeSpan;
 
@@ -30,11 +31,13 @@ public final class TracedMessage<T> {
     }
 
     public static <T> Object wrap(Span activeSpan, T message) {
-        if (message == null)
+        if (message == null) {
             throw new IllegalArgumentException("message cannot be null");
+        }
 
-        if (activeSpan == null)
+        if (activeSpan == null) {
             return message;
+        }
 
         return new TracedMessage<T>(message, activeSpan);
     }

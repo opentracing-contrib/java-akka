@@ -11,7 +11,10 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.akka;
+package io.opentracing.contrib.akka;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
@@ -21,10 +24,8 @@ import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 public class TracedMessageTest {
+
     final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
 
     @Before
@@ -38,7 +39,7 @@ public class TracedMessageTest {
         TestUtils.resetGlobalTracer();
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testNullMessage() {
         TracedMessage.wrap(null);
     }
@@ -68,7 +69,7 @@ public class TracedMessageTest {
         }
         assertTrue(message instanceof TracedMessage);
 
-        TracedMessage tracedMessage = (TracedMessage)message;
+        TracedMessage tracedMessage = (TracedMessage) message;
         assertEquals(span, tracedMessage.activeSpan());
         assertEquals(originalMessage, tracedMessage.message());
     }
@@ -81,7 +82,7 @@ public class TracedMessageTest {
         Object message = TracedMessage.wrap(span, originalMessage);
         assertTrue(message instanceof TracedMessage);
 
-        TracedMessage tracedMessage = (TracedMessage)message;
+        TracedMessage tracedMessage = (TracedMessage) message;
         assertEquals(span, tracedMessage.activeSpan());
         assertEquals(originalMessage, tracedMessage.message());
     }

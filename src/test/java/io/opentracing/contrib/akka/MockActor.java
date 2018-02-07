@@ -11,17 +11,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.akka;
+package io.opentracing.contrib.akka;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.actor.Status;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MockActor extends AbstractActor
-{
+public class MockActor extends AbstractActor {
+
     List<MockMessage> testMessages = new ArrayList<MockMessage>();
     List<Object> unhandledMessages = new ArrayList<Object>();
 
@@ -36,21 +35,23 @@ public class MockActor extends AbstractActor
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(MockMessage.class, message -> {
-                testMessages.add(message);
-                getSender().tell(getResponse(message), getSelf());
-            })
-            .match(ErrorMessage.class, message -> {
-                getSender().tell(new Status.Failure(new Exception("Error at runtime")), getSelf());
-            })
-            .matchAny(message -> {
-                unhandledMessages.add(message);
-                getSender().tell(getResponse(message), getSelf());
-            })
-            .build();
+                .match(MockMessage.class, message -> {
+                    testMessages.add(message);
+                    getSender().tell(getResponse(message), getSelf());
+                })
+                .match(ErrorMessage.class, message -> {
+                    getSender()
+                            .tell(new Status.Failure(new Exception("Error at runtime")), getSelf());
+                })
+                .matchAny(message -> {
+                    unhandledMessages.add(message);
+                    getSender().tell(getResponse(message), getSelf());
+                })
+                .build();
     }
 
     public static class MockMessage {
+
         final Object value;
 
         public MockMessage() {
@@ -67,5 +68,6 @@ public class MockActor extends AbstractActor
     }
 
     public static class ErrorMessage {
+
     }
 }
