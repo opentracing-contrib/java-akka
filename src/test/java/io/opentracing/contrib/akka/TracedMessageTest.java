@@ -27,16 +27,16 @@ import static org.junit.Assert.assertTrue;
 
 public class TracedMessageTest {
 
-    final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
+    private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         mockTracer.reset();
         GlobalTracer.register(mockTracer);
     }
 
     @Before
-    public void after() throws Exception {
+    public void after() {
         GlobalTracerTestUtil.resetGlobalTracer();
     }
 
@@ -62,10 +62,10 @@ public class TracedMessageTest {
     @Test
     public void testImplicitActiveSpan() {
         String originalMessage = "foo";
-        Object message = null;
+        Object message;
         Span span = mockTracer.buildSpan("one").start();
 
-        try (Scope scope = mockTracer.scopeManager().activate(span, false)) {
+        try (Scope ignored = mockTracer.scopeManager().activate(span, false)) {
             message = TracedMessage.wrap(originalMessage);
         }
         assertTrue(message instanceof TracedMessage);

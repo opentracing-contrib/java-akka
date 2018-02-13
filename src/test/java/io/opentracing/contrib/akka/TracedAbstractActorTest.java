@@ -71,15 +71,13 @@ public class TracedAbstractActorTest {
     static class SpanNullCheckActor extends TestActor {
 
         public static Props props() {
-            return Props.create(SpanNullCheckActor.class, () -> new SpanNullCheckActor());
+            return Props.create(SpanNullCheckActor.class, SpanNullCheckActor::new);
         }
 
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-                    .matchAny(x -> {
-                        getSender().tell(tracer().scopeManager().active() == null, getSelf());
-                    })
+                    .matchAny(x -> getSender().tell(tracer().scopeManager().active() == null, getSelf()))
                     .build();
         }
     }
@@ -97,7 +95,7 @@ public class TracedAbstractActorTest {
     static class SpanCheckActor extends TestActor {
 
         public static Props props() {
-            return Props.create(SpanCheckActor.class, () -> new SpanCheckActor());
+            return Props.create(SpanCheckActor.class, SpanCheckActor::new);
         }
 
         @Override
@@ -105,7 +103,7 @@ public class TracedAbstractActorTest {
             return receiveBuilder()
                     .matchAny(x -> {
                         Scope scope = tracer().scopeManager().active();
-                        boolean isSameSpan = scope == null ? false : scope.span().equals(x);
+                        boolean isSameSpan = scope != null && scope.span().equals(x);
                         getSender().tell(isSameSpan, getSelf());
                     })
                     .build();
@@ -117,7 +115,7 @@ public class TracedAbstractActorTest {
         ActorRef actorRef = system.actorOf(SpanCheckActor.props(), "actorOne");
         Timeout timeout = new Timeout(getDefaultDuration());
 
-        Future<Object> future = null;
+        Future<Object> future;
         try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
             Object message = TracedMessage.wrap(scope.span() /* message */);
             future = ask(actorRef, message, timeout);
@@ -132,7 +130,7 @@ public class TracedAbstractActorTest {
         ActorRef actorRef = system.actorOf(SpanCheckActor.props(), "actorOne");
         Timeout timeout = new Timeout(getDefaultDuration());
 
-        Future<Object> future = null;
+        Future<Object> future;
         try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
             /* Since scope.span() is not TracedMessage, the active Span
              * won't be propagated */
@@ -164,9 +162,7 @@ public class TracedAbstractActorTest {
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-                    .matchAny(x -> {
-                        getSender().tell(tracer() == x, getSelf());
-                    })
+                    .matchAny(x -> getSender().tell(tracer() == x, getSelf()))
                     .build();
         }
     }
@@ -176,8 +172,8 @@ public class TracedAbstractActorTest {
         ActorRef actorRef = system.actorOf(TracerCheckActor.props(mockTracer), "one");
         Timeout timeout = new Timeout(getDefaultDuration());
 
-        Future<Object> future = null;
-        try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
+        Future<Object> future;
+        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
             future = ask(actorRef, mockTracer, timeout);
         }
 
@@ -190,8 +186,8 @@ public class TracedAbstractActorTest {
         ActorRef actorRef = system.actorOf(TracerCheckActor.props(), "one");
         Timeout timeout = new Timeout(getDefaultDuration());
 
-        Future<Object> future = null;
-        try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
+        Future<Object> future;
+        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
             future = ask(actorRef, GlobalTracer.get(), timeout);
         }
 
@@ -199,7 +195,7 @@ public class TracedAbstractActorTest {
         assertTrue(isTracerSame);
     }
 
-    public static FiniteDuration getDefaultDuration() {
+    private static FiniteDuration getDefaultDuration() {
         return Duration.create(3, "seconds");
     }
 }

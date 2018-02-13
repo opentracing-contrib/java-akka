@@ -21,14 +21,14 @@ import java.util.List;
 
 public class MockActor extends AbstractActor {
 
-    List<MockMessage> testMessages = new ArrayList<MockMessage>();
-    List<Object> unhandledMessages = new ArrayList<Object>();
+    private List<MockMessage> testMessages = new ArrayList<>();
+    private List<Object> unhandledMessages = new ArrayList<>();
 
     public static Props props() {
-        return Props.create(MockActor.class, () -> new MockActor());
+        return Props.create(MockActor.class, MockActor::new);
     }
 
-    static String getResponse(Object message) {
+    private static String getResponse(Object message) {
         return message.toString() + "::response";
     }
 
@@ -39,10 +39,8 @@ public class MockActor extends AbstractActor {
                     testMessages.add(message);
                     getSender().tell(getResponse(message), getSelf());
                 })
-                .match(ErrorMessage.class, message -> {
-                    getSender()
-                            .tell(new Status.Failure(new Exception("Error at runtime")), getSelf());
-                })
+                .match(ErrorMessage.class, message -> getSender()
+                        .tell(new Status.Failure(new Exception("Error at runtime")), getSelf()))
                 .matchAny(message -> {
                     unhandledMessages.add(message);
                     getSender().tell(getResponse(message), getSelf());
