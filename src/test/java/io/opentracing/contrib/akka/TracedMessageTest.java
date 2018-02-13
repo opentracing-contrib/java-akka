@@ -13,16 +13,17 @@
  */
 package io.opentracing.contrib.akka;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.GlobalTracer;
+import io.opentracing.util.GlobalTracerTestUtil;
 import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TracedMessageTest {
 
@@ -36,7 +37,7 @@ public class TracedMessageTest {
 
     @Before
     public void after() throws Exception {
-        TestUtils.resetGlobalTracer();
+        GlobalTracerTestUtil.resetGlobalTracer();
     }
 
     @Test(expected = IllegalArgumentException.class)

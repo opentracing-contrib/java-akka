@@ -13,10 +13,6 @@
  */
 package io.opentracing.contrib.akka;
 
-import static akka.pattern.Patterns.ask;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -25,21 +21,28 @@ import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.GlobalTracer;
+import io.opentracing.util.GlobalTracerTestUtil;
 import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
+
+import static akka.pattern.Patterns.ask;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class TracedAbstractActorTest {
 
-    final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
-    ActorSystem system;
+    private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
+    private ActorSystem system;
 
     @Before
     public void before() {
-        TestUtils.resetGlobalTracer(); // safe start, just in case.
+        GlobalTracerTestUtil.resetGlobalTracer(); // safe start, just in case.
 
         mockTracer.reset();
         GlobalTracer.register(mockTracer);
@@ -49,9 +52,9 @@ public class TracedAbstractActorTest {
 
     @After
     public void after() throws Exception {
-        TestUtils.resetGlobalTracer(); // clean up.
+        GlobalTracerTestUtil.resetGlobalTracer(); // clean up.
 
-        Await.result(system.terminate(), TestUtils.getDefaultDuration());
+        Await.result(system.terminate(), getDefaultDuration());
     }
 
     static abstract class TestActor extends TracedAbstractActor {
@@ -84,10 +87,10 @@ public class TracedAbstractActorTest {
     @Test
     public void testNoActiveSpan() throws Exception {
         ActorRef actorRef = system.actorOf(SpanNullCheckActor.props(), "one");
-        Timeout timeout = new Timeout(TestUtils.getDefaultDuration());
+        Timeout timeout = new Timeout(getDefaultDuration());
         Future<Object> future = ask(actorRef, TracedMessage.wrap("foo"), timeout);
 
-        Boolean isSpanNull = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isSpanNull = (Boolean) Await.result(future, getDefaultDuration());
         assertTrue(isSpanNull);
     }
 
@@ -112,7 +115,7 @@ public class TracedAbstractActorTest {
     @Test
     public void testActiveSpan() throws Exception {
         ActorRef actorRef = system.actorOf(SpanCheckActor.props(), "actorOne");
-        Timeout timeout = new Timeout(TestUtils.getDefaultDuration());
+        Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future = null;
         try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
@@ -120,14 +123,14 @@ public class TracedAbstractActorTest {
             future = ask(actorRef, message, timeout);
         }
 
-        Boolean isSpanSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isSpanSame = (Boolean) Await.result(future, getDefaultDuration());
         assertTrue(isSpanSame);
     }
 
     @Test
     public void testNoWrapMessage() throws Exception {
         ActorRef actorRef = system.actorOf(SpanCheckActor.props(), "actorOne");
-        Timeout timeout = new Timeout(TestUtils.getDefaultDuration());
+        Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future = null;
         try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
@@ -136,7 +139,7 @@ public class TracedAbstractActorTest {
             future = ask(actorRef, scope.span(), timeout);
         }
 
-        Boolean isSpanSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isSpanSame = (Boolean) Await.result(future, getDefaultDuration());
         assertFalse(isSpanSame);
     }
 
@@ -171,28 +174,32 @@ public class TracedAbstractActorTest {
     @Test
     public void testExplicitTracer() throws Exception {
         ActorRef actorRef = system.actorOf(TracerCheckActor.props(mockTracer), "one");
-        Timeout timeout = new Timeout(TestUtils.getDefaultDuration());
+        Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future = null;
         try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
             future = ask(actorRef, mockTracer, timeout);
         }
 
-        Boolean isTracerSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isTracerSame = (Boolean) Await.result(future, getDefaultDuration());
         assertTrue(isTracerSame);
     }
 
     @Test
     public void testGlobalTracer() throws Exception {
         ActorRef actorRef = system.actorOf(TracerCheckActor.props(), "one");
-        Timeout timeout = new Timeout(TestUtils.getDefaultDuration());
+        Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future = null;
         try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
             future = ask(actorRef, GlobalTracer.get(), timeout);
         }
 
-        Boolean isTracerSame = (Boolean) Await.result(future, TestUtils.getDefaultDuration());
+        Boolean isTracerSame = (Boolean) Await.result(future, getDefaultDuration());
         assertTrue(isTracerSame);
+    }
+
+    public static FiniteDuration getDefaultDuration() {
+        return Duration.create(3, "seconds");
     }
 }
