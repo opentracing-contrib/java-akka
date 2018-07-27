@@ -70,6 +70,10 @@ Span span = tracer.buildSpan("foo").start();
 Future<String> f = ask(myActorRef, TracedMessage.wrap(span, "hello"), timeout);
 ```
 
+## License
+
+[Apache 2.0 License](./LICENSE).
+
 [ci-img]: https://travis-ci.org/opentracing-contrib/java-akka.svg?branch=master
 [ci]: https://travis-ci.org/opentracing-contrib/java-akka
 [cov-img]: https://coveralls.io/repos/github/opentracing-contrib/java-akka/badge.svg?branch=master
