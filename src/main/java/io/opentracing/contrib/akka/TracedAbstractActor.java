@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -48,7 +48,7 @@ public abstract class TracedAbstractActor extends AbstractActor {
         Span span = tracedMessage.activeSpan();
         Object originalMessage = tracedMessage.message();
 
-        try (Scope scope = tracer.scopeManager().activate(span, false)) {
+        try (Scope ignored = tracer.scopeManager().activate(span)) {
             super.aroundReceive(receive, originalMessage);
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 The OpenTracing Authors
+ * Copyright 2017-2019 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.util.Timeout;
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.GlobalTracer;
@@ -45,7 +46,7 @@ public class TracedAbstractActorTest {
         GlobalTracerTestUtil.resetGlobalTracer(); // safe start, just in case.
 
         mockTracer.reset();
-        GlobalTracer.register(mockTracer);
+        GlobalTracer.registerIfAbsent(mockTracer);
 
         system = ActorSystem.create("testSystem");
     }
@@ -77,7 +78,7 @@ public class TracedAbstractActorTest {
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-                    .matchAny(x -> getSender().tell(tracer().scopeManager().active() == null, getSelf()))
+                    .matchAny(x -> getSender().tell(tracer().scopeManager().activeSpan() == null, getSelf()))
                     .build();
         }
     }
@@ -102,8 +103,8 @@ public class TracedAbstractActorTest {
         public Receive createReceive() {
             return receiveBuilder()
                     .matchAny(x -> {
-                        Scope scope = tracer().scopeManager().active();
-                        boolean isSameSpan = scope != null && scope.span().equals(x);
+                        Span span = tracer().scopeManager().activeSpan();
+                        boolean isSameSpan = span != null && span.equals(x);
                         getSender().tell(isSameSpan, getSelf());
                     })
                     .build();
@@ -116,8 +117,8 @@ public class TracedAbstractActorTest {
         Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future;
-        try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
-            Object message = TracedMessage.wrap(scope.span() /* message */);
+        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
+            Object message = TracedMessage.wrap(mockTracer.activeSpan() /* message */);
             future = ask(actorRef, message, timeout);
         }
 
@@ -131,10 +132,10 @@ public class TracedAbstractActorTest {
         Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future;
-        try (Scope scope = mockTracer.buildSpan("one").startActive(true)) {
+        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
             /* Since scope.span() is not TracedMessage, the active Span
              * won't be propagated */
-            future = ask(actorRef, scope.span(), timeout);
+            future = ask(actorRef, mockTracer.activeSpan(), timeout);
         }
 
         Boolean isSpanSame = (Boolean) Await.result(future, getDefaultDuration());
