@@ -56,7 +56,7 @@
     <name>${project.groupId}:${project.artifactId}</name>
     <description>OpenTracing Instrumentation for Akka</description>
     <url>https://github.com/opentracing-contrib/java-akka</url>
-    <inceptionYear>2017-2019</inceptionYear>
+    <inceptionYear>2017</inceptionYear>
 
     <licenses>
         <license>
