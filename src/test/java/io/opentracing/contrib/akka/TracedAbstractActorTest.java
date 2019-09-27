@@ -20,6 +20,7 @@ import akka.util.Timeout;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.GlobalTracer;
 import io.opentracing.util.GlobalTracerTestUtil;
@@ -117,10 +118,12 @@ public class TracedAbstractActorTest {
         Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future;
-        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
+        final MockSpan parent = mockTracer.buildSpan("one").start();
+        try (Scope ignored = mockTracer.activateSpan(parent)) {
             Object message = TracedMessage.wrap(mockTracer.activeSpan() /* message */);
             future = ask(actorRef, message, timeout);
         }
+        parent.finish();
 
         Boolean isSpanSame = (Boolean) Await.result(future, getDefaultDuration());
         assertTrue(isSpanSame);
@@ -132,11 +135,13 @@ public class TracedAbstractActorTest {
         Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future;
-        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
+        final MockSpan parent = mockTracer.buildSpan("one").start();
+        try (Scope ignored = mockTracer.activateSpan(parent)) {
             /* Since scope.span() is not TracedMessage, the active Span
              * won't be propagated */
             future = ask(actorRef, mockTracer.activeSpan(), timeout);
         }
+        parent.finish();
 
         Boolean isSpanSame = (Boolean) Await.result(future, getDefaultDuration());
         assertFalse(isSpanSame);
@@ -174,9 +179,11 @@ public class TracedAbstractActorTest {
         Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future;
-        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
+        final MockSpan parent = mockTracer.buildSpan("one").start();
+        try (Scope ignored = mockTracer.activateSpan(parent)) {
             future = ask(actorRef, mockTracer, timeout);
         }
+        parent.finish();
 
         Boolean isTracerSame = (Boolean) Await.result(future, getDefaultDuration());
         assertTrue(isTracerSame);
@@ -188,9 +195,11 @@ public class TracedAbstractActorTest {
         Timeout timeout = new Timeout(getDefaultDuration());
 
         Future<Object> future;
-        try (Scope ignored = mockTracer.buildSpan("one").startActive(true)) {
+        final MockSpan parent = mockTracer.buildSpan("one").start();
+        try (Scope ignored = mockTracer.activateSpan(parent)) {
             future = ask(actorRef, GlobalTracer.get(), timeout);
         }
+        parent.finish();
 
         Boolean isTracerSame = (Boolean) Await.result(future, getDefaultDuration());
         assertTrue(isTracerSame);
