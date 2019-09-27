@@ -14,7 +14,8 @@
     the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.opentracing.contrib</groupId>
     <artifactId>opentracing-akka</artifactId>
@@ -34,22 +35,9 @@
 
         <main.basedir>${project.basedir}</main.basedir>
 
-        <opentracing.version>0.32.0</opentracing.version>
-        <akka.version>2.5.21</akka.version>
-        <org.awaitility.version>3.1.6</org.awaitility.version>
-        <junit.version>4.12</junit.version>
+        <opentracing.version>0.33.0</opentracing.version>
+        <akka.version>2.5.25</akka.version>
 
-        <!-- plugins -->
-        <centralsync-maven-plugin.version>0.1.0</centralsync-maven-plugin.version>
-        <takari-maven.version>0.3.4</takari-maven.version>
-        <license-maven-plugin.version>3.0</license-maven-plugin.version>
-        <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-        <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
-        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-        <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
     </properties>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -98,79 +86,37 @@
         <url>https://github.com/opentracing-contrib/java-akka/issues</url>
     </issueManagement>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.opentracing</groupId>
-                <artifactId>opentracing-api</artifactId>
-                <version>${opentracing.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.opentracing</groupId>
-                <artifactId>opentracing-util</artifactId>
-                <version>${opentracing.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.opentracing</groupId>
-                <artifactId>opentracing-util</artifactId>
-                <version>${opentracing.version}</version>
-                <type>test-jar</type>
-            </dependency>
-
-            <dependency>
-                <groupId>io.opentracing</groupId>
-                <artifactId>opentracing-mock</artifactId>
-                <version>${opentracing.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.typesafe.akka</groupId>
-                <artifactId>akka-actor_2.12</artifactId>
-                <version>${akka.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.awaitility</groupId>
-                <artifactId>awaitility</artifactId>
-                <version>${org.awaitility.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-api</artifactId>
+            <version>${opentracing.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-mock</artifactId>
+            <version>${opentracing.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-util</artifactId>
+            <version>${opentracing.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.12</artifactId>
+            <version>${akka.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-util</artifactId>
+            <version>${opentracing.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -178,12 +124,14 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
+            <version>4.0.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -204,16 +152,18 @@
         <plugins>
             <!-- Ensures checksums are added to published jars -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <version>${maven-install-plugin.version}</version>
+                <version>2.5.2</version>
                 <configuration>
                     <createChecksum>true</createChecksum>
                 </configuration>
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin.version}</version>
+                <version>2.5.3</version>
                 <configuration>
                     <useReleaseProfile>false</useReleaseProfile>
                     <releaseProfiles>release</releaseProfiles>
@@ -225,7 +175,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>${license-maven-plugin.version}</version>
+                <version>3.0</version>
                 <configuration>
                     <header>${main.basedir}/src/etc/header.txt</header>
                     <mapping>
@@ -251,7 +201,7 @@
                     <dependency>
                         <groupId>com.mycila</groupId>
                         <artifactId>license-maven-plugin-git</artifactId>
-                        <version>${license-maven-plugin.version}</version>
+                        <version>3.0</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -265,26 +215,15 @@
             </plugin>
 
             <plugin>
-                <groupId>io.zipkin.centralsync-maven-plugin</groupId>
-                <artifactId>centralsync-maven-plugin</artifactId>
-                <version>${centralsync-maven-plugin.version}</version>
-                <configuration>
-                    <subject>opentracing</subject>
-                    <repo>maven</repo>
-                    <packageName>opentracing-akka</packageName>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-                <version>${coveralls-maven-plugin.version}</version>
+                <version>4.3.0</version>
             </plugin>
 
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
+                <version>0.8.4</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -304,8 +243,9 @@
                 <plugins>
                     <!-- Creates source jar -->
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven-source-plugin.version}</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -317,8 +257,9 @@
                     </plugin>
                     <!-- Creates javadoc jar -->
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
+                        <version>3.1.1</version>
                         <configuration>
                             <failOnError>false</failOnError>
                         </configuration>
