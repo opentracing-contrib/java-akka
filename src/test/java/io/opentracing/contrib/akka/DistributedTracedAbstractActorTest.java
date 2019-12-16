@@ -19,108 +19,93 @@ import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 
 public class DistributedTracedAbstractActorTest extends AbstractDistributedTracedActorTest {
-    abstract static class TestActor extends DistributedTracedAbstractActor {
+  abstract static class TestActor extends DistributedTracedAbstractActor {
 
-        public TestActor()
-        {
-            super(GlobalTracer.get());
-        }
-
-        public TestActor(Tracer tracer)
-        {
-            super(tracer);
-        }
+    public TestActor() {
+      super(GlobalTracer.get());
     }
 
-    static class SpanNullCheckActor extends TestActor {
-
-        public static Props props()
-        {
-            return Props.create(SpanNullCheckActor.class, SpanNullCheckActor::new);
-        }
-
-        @Override
-        public Receive createReceive()
-        {
-            return receiveBuilder()
-                    .matchAny(x -> getSender().tell(tracer().scopeManager().activeSpan() == null, getSelf()))
-                    .build();
-        }
+    public TestActor(Tracer tracer) {
+      super(tracer);
     }
+  }
 
-    static class TraceIdCheckActor extends TestActor {
+  static class SpanNullCheckActor extends TestActor {
 
-        public static Props props()
-        {
-            return Props.create(TraceIdCheckActor.class, TraceIdCheckActor::new);
-        }
-
-        @Override
-        public Receive createReceive()
-        {
-            return receiveBuilder()
-                    .matchAny(x -> {
-                        Span span = tracer().scopeManager().activeSpan();
-                        boolean isSameTraceId = span != null && span.context().toTraceId().equals(x);
-                        getSender().tell(isSameTraceId, getSelf());
-                    })
-                    .build();
-        }
-    }
-
-    static class TracerCheckActor extends TestActor {
-
-        public TracerCheckActor()
-        {
-            super();
-        }
-
-        public TracerCheckActor(Tracer tracer)
-        {
-            super(tracer);
-        }
-
-        public static Props props()
-        {
-            return Props.create(TracerCheckActor.class, TracerCheckActor::new);
-        }
-
-        public static Props props(Tracer tracer)
-        {
-            return Props.create(TracerCheckActor.class, () -> new TracerCheckActor(tracer));
-        }
-
-        @Override
-        public Receive createReceive()
-        {
-            return receiveBuilder()
-                    .matchAny(x -> getSender().tell(tracer() == x, getSelf()))
-                    .build();
-        }
+    public static Props props() {
+      return Props.create(SpanNullCheckActor.class, SpanNullCheckActor::new);
     }
 
     @Override
-    Props tracedCheckActorProps()
-    {
-        return TracerCheckActor.props();
+    public Receive createReceive() {
+      return receiveBuilder()
+          .matchAny(x -> getSender().tell(tracer().scopeManager().activeSpan() == null, getSelf()))
+          .build();
+    }
+  }
+
+  static class TraceIdCheckActor extends TestActor {
+
+    public static Props props() {
+      return Props.create(TraceIdCheckActor.class, TraceIdCheckActor::new);
     }
 
     @Override
-    Props tracedCheckActorProps(Tracer tracer)
-    {
-        return TracerCheckActor.props(tracer);
+    public Receive createReceive() {
+      return receiveBuilder()
+          .matchAny(x -> {
+            Span span = tracer().scopeManager().activeSpan();
+            boolean isSameTraceId = span != null && span.context().toTraceId().equals(x);
+            getSender().tell(isSameTraceId, getSelf());
+          })
+          .build();
+    }
+  }
+
+  static class TracerCheckActor extends TestActor {
+
+    public TracerCheckActor() {
+      super();
+    }
+
+    public TracerCheckActor(Tracer tracer) {
+      super(tracer);
+    }
+
+    public static Props props() {
+      return Props.create(TracerCheckActor.class, TracerCheckActor::new);
+    }
+
+    public static Props props(Tracer tracer) {
+      return Props.create(TracerCheckActor.class, () -> new TracerCheckActor(tracer));
     }
 
     @Override
-    Props spanNullTracedActorProps()
-    {
-        return SpanNullCheckActor.props();
+    public Receive createReceive() {
+      return receiveBuilder()
+          .matchAny(x -> getSender().tell(tracer() == x, getSelf()))
+          .build();
     }
+  }
 
-    @Override
-    Props traceIdCheckTracedActorProps()
-    {
-        return TraceIdCheckActor.props();
-    }
+  @Override
+  Props tracedCheckActorProps() {
+    return TracerCheckActor.props();
+  }
+
+  @Override
+  Props tracedCheckActorProps(Tracer tracer) {
+    return TracerCheckActor.props(tracer);
+  }
+
+  @Override
+  Props spanNullTracedActorProps() {
+    return SpanNullCheckActor.props();
+  }
+
+  @Override
+  Props traceIdCheckTracedActorProps() {
+    return TraceIdCheckActor.props();
+  }
 
 }
