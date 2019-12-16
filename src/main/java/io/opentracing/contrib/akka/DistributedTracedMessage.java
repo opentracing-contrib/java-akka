@@ -87,4 +87,11 @@ public final class DistributedTracedMessage<T> {
   public T message() {
     return message;
   }
+
+  @Override
+  public String toString() {
+    return "DistributedTracedMessage{" +
+            "message=" + message +
+            '}';
+  }
 }
