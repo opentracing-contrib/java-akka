@@ -18,8 +18,8 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 
-public class TracedAbstractActorTest extends AbstractTracedActorTest {
-    abstract static class TestActor extends TracedAbstractActor {
+public class TracedAbstractActorWithStashTest extends AbstractTracedActorTest {
+    abstract static class TestActor extends TracedAbstractActorWithStash {
 
         public TestActor()
         {

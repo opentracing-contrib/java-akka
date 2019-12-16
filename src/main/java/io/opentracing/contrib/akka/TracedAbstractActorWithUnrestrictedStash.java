@@ -13,7 +13,7 @@
  */
 package io.opentracing.contrib.akka;
 
-import akka.actor.AbstractActor;
+import akka.actor.AbstractActorWithUnrestrictedStash;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -21,18 +21,21 @@ import io.opentracing.util.GlobalTracer;
 import scala.PartialFunction;
 import scala.runtime.BoxedUnit;
 
-public abstract class TracedAbstractActor extends AbstractActor implements TracedActor {
+public abstract class TracedAbstractActorWithUnrestrictedStash extends AbstractActorWithUnrestrictedStash implements TracedActor {
     Tracer tracer;
 
-    public TracedAbstractActor() {
+    public TracedAbstractActorWithUnrestrictedStash()
+    {
         this(GlobalTracer.get());
     }
 
-    public TracedAbstractActor(Tracer tracer) {
+    public TracedAbstractActorWithUnrestrictedStash(Tracer tracer)
+    {
         this.tracer = tracer;
     }
 
-    protected Tracer tracer() {
+    protected Tracer tracer()
+    {
         return tracer;
     }
 
