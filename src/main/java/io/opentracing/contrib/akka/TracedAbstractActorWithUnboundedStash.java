@@ -13,32 +13,30 @@
  */
 package io.opentracing.contrib.akka;
 
-import akka.actor.AbstractActorWithStash;
 import akka.actor.AbstractActorWithUnboundedStash;
-import io.opentracing.Scope;
-import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 import scala.PartialFunction;
 import scala.runtime.BoxedUnit;
 
-public abstract class TracedAbstractActorWithUnboundedStash extends AbstractActorWithUnboundedStash implements TracedActor {
-    Tracer tracer;
+public abstract class TracedAbstractActorWithUnboundedStash extends
+    AbstractActorWithUnboundedStash implements TracedActor {
+  Tracer tracer;
 
-    public TracedAbstractActorWithUnboundedStash() {
-        this(GlobalTracer.get());
-    }
+  public TracedAbstractActorWithUnboundedStash() {
+    this(GlobalTracer.get());
+  }
 
-    public TracedAbstractActorWithUnboundedStash(Tracer tracer) {
-        this.tracer = tracer;
-    }
+  public TracedAbstractActorWithUnboundedStash(Tracer tracer) {
+    this.tracer = tracer;
+  }
 
-    protected Tracer tracer() {
-        return tracer;
-    }
+  protected Tracer tracer() {
+    return tracer;
+  }
 
-    @Override
-    public void aroundReceive(PartialFunction<Object, BoxedUnit> receive, Object message) {
-        Utils.aroundReceive(super::aroundReceive, tracer(), receive, message);
-    }
+  @Override
+  public void aroundReceive(PartialFunction<Object, BoxedUnit> receive, Object message) {
+    Utils.aroundReceive(super::aroundReceive, tracer(), receive, message);
+  }
 }

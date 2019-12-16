@@ -18,35 +18,35 @@ import io.opentracing.util.GlobalTracer;
 
 public final class TracedMessage<T> {
 
-    private T message;
-    private Span activeSpan;
+  private T message;
+  private Span activeSpan;
 
-    private TracedMessage(T message, Span activeSpan) {
-        this.message = message;
-        this.activeSpan = activeSpan;
+  private TracedMessage(T message, Span activeSpan) {
+    this.message = message;
+    this.activeSpan = activeSpan;
+  }
+
+  public static Object wrap(Object message) {
+    return wrap(GlobalTracer.get().activeSpan(), message);
+  }
+
+  public static <T> Object wrap(Span activeSpan, T message) {
+    if (message == null) {
+      throw new IllegalArgumentException("message cannot be null");
     }
 
-    public static Object wrap(Object message) {
-        return wrap(GlobalTracer.get().activeSpan(), message);
+    if (activeSpan == null) {
+      return message;
     }
 
-    public static <T> Object wrap(Span activeSpan, T message) {
-        if (message == null) {
-            throw new IllegalArgumentException("message cannot be null");
-        }
+    return new TracedMessage<>(message, activeSpan);
+  }
 
-        if (activeSpan == null) {
-            return message;
-        }
+  public Span activeSpan() {
+    return activeSpan;
+  }
 
-        return new TracedMessage<>(message, activeSpan);
-    }
-
-    public Span activeSpan() {
-        return activeSpan;
-    }
-
-    public T message() {
-        return message;
-    }
+  public T message() {
+    return message;
+  }
 }

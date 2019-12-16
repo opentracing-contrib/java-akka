@@ -27,118 +27,113 @@ import org.junit.Test;
 
 public class TracedMessageExtractorTest {
 
-    private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
+  private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
 
-    static class MessageExtractorAdapter implements ShardRegion.MessageExtractor {
-        @Override
-        public String entityId(Object message)
-        {
-            return message.getClass().toString();
-        }
-
-        @Override
-        public Object entityMessage(Object message)
-        {
-            return message.getClass().toString();
-        }
-
-        @Override
-        public String shardId(Object message)
-        {
-            return message.getClass().toString();
-        }
+  static class MessageExtractorAdapter implements ShardRegion.MessageExtractor {
+    @Override
+    public String entityId(Object message) {
+      return message.getClass().toString();
     }
 
-    @Before
-    public void before()
-    {
-        mockTracer.reset();
-        GlobalTracer.registerIfAbsent(mockTracer);
+    @Override
+    public Object entityMessage(Object message) {
+      return message.getClass().toString();
     }
 
-    @Before
-    public void after()
-    {
-        GlobalTracerTestUtil.resetGlobalTracer();
+    @Override
+    public String shardId(Object message) {
+      return message.getClass().toString();
     }
+  }
 
-    @Test
-    public void testEntityIdWithoutTracedMessage()
-    {
-        MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-        TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(messageExtractorAdapter);
+  @Before
+  public void before() {
+    mockTracer.reset();
+    GlobalTracer.registerIfAbsent(mockTracer);
+  }
 
-        String message = "foo";
-        String entityId = tracedMessageExtractor.entityId(message);
-        assertEquals(entityId, message.getClass().toString());
-    }
+  @Before
+  public void after() {
+    GlobalTracerTestUtil.resetGlobalTracer();
+  }
 
-    @Test
-    public void testEntityIdWithTracedMessage()
-    {
-        MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-        TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(messageExtractorAdapter);
+  @Test
+  public void testEntityIdWithoutTracedMessage() {
+    MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
+    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+        messageExtractorAdapter);
 
-        String message = "foo";
-        Span span = mockTracer.buildSpan("one").start();
-        Object tracedMessage = TracedMessage.wrap(span, message);
-        String entityId = tracedMessageExtractor.entityId(tracedMessage);
-        assertEquals(entityId, message.getClass().toString());
-    }
+    String message = "foo";
+    String entityId = tracedMessageExtractor.entityId(message);
+    assertEquals(entityId, message.getClass().toString());
+  }
 
-    @Test
-    public void testShardIdWithoutTracedMessage()
-    {
-        MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-        TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(messageExtractorAdapter);
+  @Test
+  public void testEntityIdWithTracedMessage() {
+    MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
+    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+        messageExtractorAdapter);
 
-        String message = "foo";
-        String shardId = tracedMessageExtractor.shardId(message);
-        assertEquals(shardId, message.getClass().toString());
-    }
+    String message = "foo";
+    Span span = mockTracer.buildSpan("one").start();
+    Object tracedMessage = TracedMessage.wrap(span, message);
+    String entityId = tracedMessageExtractor.entityId(tracedMessage);
+    assertEquals(entityId, message.getClass().toString());
+  }
 
-    @Test
-    public void testShardIdWithTracedMessage()
-    {
-        MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-        TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(messageExtractorAdapter);
+  @Test
+  public void testShardIdWithoutTracedMessage() {
+    MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
+    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+        messageExtractorAdapter);
 
-        String message = "foo";
-        Span span = mockTracer.buildSpan("one").start();
-        Object tracedMessage = TracedMessage.wrap(span, message);
-        String shardId = tracedMessageExtractor.shardId(tracedMessage);
-        assertEquals(shardId, message.getClass().toString());
-    }
+    String message = "foo";
+    String shardId = tracedMessageExtractor.shardId(message);
+    assertEquals(shardId, message.getClass().toString());
+  }
 
-    @Test
-    public void testEntityMessageWithoutTracedMessage()
-    {
-        MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-        TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(messageExtractorAdapter);
+  @Test
+  public void testShardIdWithTracedMessage() {
+    MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
+    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+        messageExtractorAdapter);
 
-        String message = "foo";
-        String shardId = tracedMessageExtractor.shardId(message);
-        assertEquals(message.getClass().toString(), shardId);
-    }
+    String message = "foo";
+    Span span = mockTracer.buildSpan("one").start();
+    Object tracedMessage = TracedMessage.wrap(span, message);
+    String shardId = tracedMessageExtractor.shardId(tracedMessage);
+    assertEquals(shardId, message.getClass().toString());
+  }
 
-    @Test
-    public void testEntityMessageWithTracedMessage()
-    {
-        MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter() {
-            @Override
-            public Object entityMessage(Object message)
-            {
-                Span span = mockTracer.buildSpan("two").start();
-                return TracedMessage.wrap(span, "other message");
-            }
-        };
-        TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(messageExtractorAdapter);
+  @Test
+  public void testEntityMessageWithoutTracedMessage() {
+    MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
+    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+        messageExtractorAdapter);
 
-        String message = "foo";
-        Span span = mockTracer.buildSpan("one").start();
-        Object tracedMessage = TracedMessage.wrap(span, message);
-        Object extractedMessage = tracedMessageExtractor.entityMessage(tracedMessage);
-        assertEquals(TracedMessage.class, extractedMessage.getClass());
-        assertNotEquals(((TracedMessage) tracedMessage).activeSpan(), ((TracedMessage) extractedMessage).activeSpan());
-    }
+    String message = "foo";
+    String shardId = tracedMessageExtractor.shardId(message);
+    assertEquals(message.getClass().toString(), shardId);
+  }
+
+  @Test
+  public void testEntityMessageWithTracedMessage() {
+    MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter() {
+      @Override
+      public Object entityMessage(Object message) {
+        Span span = mockTracer.buildSpan("two").start();
+        return TracedMessage.wrap(span, "other message");
+      }
+    };
+    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+        messageExtractorAdapter);
+
+    String message = "foo";
+    Span span = mockTracer.buildSpan("one").start();
+    Object tracedMessage = TracedMessage.wrap(span, message);
+    Object extractedMessage = tracedMessageExtractor.entityMessage(tracedMessage);
+    assertEquals(TracedMessage.class, extractedMessage.getClass());
+    assertNotEquals(((TracedMessage) tracedMessage).activeSpan(),
+        ((TracedMessage) extractedMessage).activeSpan());
+  }
 }

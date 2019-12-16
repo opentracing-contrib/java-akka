@@ -16,44 +16,40 @@ package io.opentracing.contrib.akka;
 import akka.cluster.sharding.ShardRegion;
 
 public class TracedMessageExtractor implements ShardRegion.MessageExtractor {
-    private ShardRegion.MessageExtractor target;
+  private ShardRegion.MessageExtractor target;
 
-    public TracedMessageExtractor(final ShardRegion.MessageExtractor messageExtractor)
-    {
-        this.target = messageExtractor;
-    }
+  public TracedMessageExtractor(final ShardRegion.MessageExtractor messageExtractor) {
+    this.target = messageExtractor;
+  }
 
-    @Override
-    public String entityId(final Object message)
-    {
-        if (message instanceof TracedMessage) {
-            final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
-            return this.target.entityId(tracedMessage.message());
-        }
-        return this.target.entityId(message);
+  @Override
+  public String entityId(final Object message) {
+    if (message instanceof TracedMessage) {
+      final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
+      return this.target.entityId(tracedMessage.message());
     }
+    return this.target.entityId(message);
+  }
 
-    @Override
-    public Object entityMessage(Object message)
-    {
-        if (message instanceof TracedMessage) {
-            final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
-            Object result = this.target.entityMessage(tracedMessage.message());
-            if (result instanceof TracedMessage) {
-                return result;
-            }
-            return TracedMessage.wrap(tracedMessage.activeSpan(), result);
-        }
-        return this.target.entityMessage(message);
+  @Override
+  public Object entityMessage(Object message) {
+    if (message instanceof TracedMessage) {
+      final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
+      Object result = this.target.entityMessage(tracedMessage.message());
+      if (result instanceof TracedMessage) {
+        return result;
+      }
+      return TracedMessage.wrap(tracedMessage.activeSpan(), result);
     }
+    return this.target.entityMessage(message);
+  }
 
-    @Override
-    public String shardId(Object message)
-    {
-        if (message instanceof TracedMessage) {
-            final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
-            return this.target.shardId(tracedMessage.message());
-        }
-        return this.target.shardId(message);
+  @Override
+  public String shardId(Object message) {
+    if (message instanceof TracedMessage) {
+      final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
+      return this.target.shardId(tracedMessage.message());
     }
+    return this.target.shardId(message);
+  }
 }

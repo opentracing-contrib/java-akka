@@ -14,33 +14,29 @@
 package io.opentracing.contrib.akka;
 
 import akka.actor.AbstractActorWithTimers;
-import io.opentracing.Scope;
-import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 import scala.PartialFunction;
 import scala.runtime.BoxedUnit;
 
-public abstract class TracedAbstractActorWithTimers extends AbstractActorWithTimers implements TracedActor {
-    Tracer tracer;
+public abstract class TracedAbstractActorWithTimers extends AbstractActorWithTimers implements
+    TracedActor {
+  Tracer tracer;
 
-    public TracedAbstractActorWithTimers()
-    {
-        this(GlobalTracer.get());
-    }
+  public TracedAbstractActorWithTimers() {
+    this(GlobalTracer.get());
+  }
 
-    public TracedAbstractActorWithTimers(Tracer tracer)
-    {
-        this.tracer = tracer;
-    }
+  public TracedAbstractActorWithTimers(Tracer tracer) {
+    this.tracer = tracer;
+  }
 
-    protected Tracer tracer()
-    {
-        return tracer;
-    }
+  protected Tracer tracer() {
+    return tracer;
+  }
 
-    @Override
-    public void aroundReceive(PartialFunction<Object, BoxedUnit> receive, Object message) {
-        Utils.aroundReceive(super::aroundReceive, tracer(), receive, message);
-    }
+  @Override
+  public void aroundReceive(PartialFunction<Object, BoxedUnit> receive, Object message) {
+    Utils.aroundReceive(super::aroundReceive, tracer(), receive, message);
+  }
 }

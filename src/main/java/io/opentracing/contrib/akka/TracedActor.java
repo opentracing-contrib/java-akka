@@ -22,23 +22,25 @@ import scala.PartialFunction;
 import scala.runtime.BoxedUnit;
 
 public interface TracedActor extends Actor {
-    class Utils {
-        private Utils() {
-        }
-
-        public static void aroundReceive(BiConsumer<PartialFunction<Object, BoxedUnit>, Object> superConsumer, Tracer tracer, PartialFunction<Object, BoxedUnit> receive, Object message) {
-            if (!(message instanceof TracedMessage)) {
-                superConsumer.accept(receive, message);
-                return;
-            }
-
-            final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
-            final Span span = tracedMessage.activeSpan();
-            final Object originalMessage = tracedMessage.message();
-
-            try (Scope ignored = tracer.scopeManager().activate(span)) {
-                superConsumer.accept(receive, originalMessage);
-            }
-        }
+  class Utils {
+    private Utils() {
     }
+
+    public static void aroundReceive(
+        BiConsumer<PartialFunction<Object, BoxedUnit>, Object> superConsumer, Tracer tracer,
+        PartialFunction<Object, BoxedUnit> receive, Object message) {
+      if (!(message instanceof TracedMessage)) {
+        superConsumer.accept(receive, message);
+        return;
+      }
+
+      final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
+      final Span span = tracedMessage.activeSpan();
+      final Object originalMessage = tracedMessage.message();
+
+      try (Scope ignored = tracer.scopeManager().activate(span)) {
+        superConsumer.accept(receive, originalMessage);
+      }
+    }
+  }
 }
