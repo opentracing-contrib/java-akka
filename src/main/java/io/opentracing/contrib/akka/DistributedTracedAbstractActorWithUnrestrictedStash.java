@@ -19,26 +19,24 @@ import io.opentracing.util.GlobalTracer;
 import scala.PartialFunction;
 import scala.runtime.BoxedUnit;
 
-public abstract class DistributedTracedAbstractActorWithUnrestrictedStash extends AbstractActorWithUnrestrictedStash implements DistributedTracedActor {
-    Tracer tracer;
+public abstract class DistributedTracedAbstractActorWithUnrestrictedStash extends
+    AbstractActorWithUnrestrictedStash implements DistributedTracedActor {
+  Tracer tracer;
 
-    public DistributedTracedAbstractActorWithUnrestrictedStash()
-    {
-        this(GlobalTracer.get());
-    }
+  public DistributedTracedAbstractActorWithUnrestrictedStash() {
+    this(GlobalTracer.get());
+  }
 
-    public DistributedTracedAbstractActorWithUnrestrictedStash(Tracer tracer)
-    {
-        this.tracer = tracer;
-    }
+  public DistributedTracedAbstractActorWithUnrestrictedStash(Tracer tracer) {
+    this.tracer = tracer;
+  }
 
-    protected Tracer tracer()
-    {
-        return tracer;
-    }
+  protected Tracer tracer() {
+    return tracer;
+  }
 
-    @Override
-    public void aroundReceive(PartialFunction<Object, BoxedUnit> receive, Object message) {
-        Utils.aroundReceive(super::aroundReceive, tracer(), receive, message);
-    }
+  @Override
+  public void aroundReceive(PartialFunction<Object, BoxedUnit> receive, Object message) {
+    Utils.aroundReceive(super::aroundReceive, tracer(), receive, message);
+  }
 }

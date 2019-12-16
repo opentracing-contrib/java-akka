@@ -25,66 +25,66 @@ import java.util.Map;
 
 public final class DistributedTracedMessage<T> {
 
-    private T message;
-    private Map<String, String> headers;
+  private T message;
+  private Map<String, String> headers;
 
-    private DistributedTracedMessage(T message, Map<String, String> headers) {
-        this.message = message;
-        this.headers = headers;
+  private DistributedTracedMessage(T message, Map<String, String> headers) {
+    this.message = message;
+    this.headers = headers;
+  }
+
+  public static Object wrap(Tracer tracer, Object message) {
+    return wrap(tracer, tracer.activeSpan(), message);
+  }
+
+  public static Object wrap(Object message) {
+    Tracer tracer = GlobalTracer.get();
+    return wrap(tracer, tracer.activeSpan(), message);
+  }
+
+  public static <T> Object wrap(Span activeSpan, T message) {
+    return wrap(GlobalTracer.get(), activeSpan, message);
+  }
+
+  public static <T> Object wrap(Tracer tracer, Span activeSpan, T message) {
+    if (message == null) {
+      throw new IllegalArgumentException("message cannot be null");
     }
 
-    public static Object wrap(Tracer tracer, Object message) {
-        return wrap(tracer, tracer.activeSpan(), message);
+    if (activeSpan == null) {
+      return message;
     }
 
-    public static Object wrap(Object message) {
-        Tracer tracer = GlobalTracer.get();
-        return wrap(tracer, tracer.activeSpan(), message);
+    final Map<String, String> headers = new HashMap<>();
+    tracer.inject(activeSpan.context(), Format.Builtin.TEXT_MAP_INJECT, headers::put);
+    return new DistributedTracedMessage<>(message, headers);
+  }
+
+  private SpanContext spanContext(Tracer tracer) {
+    return tracer.extract(Format.Builtin.TEXT_MAP_EXTRACT, () -> headers.entrySet().iterator());
+  }
+
+  Span activeSpan() {
+    return activeSpan(GlobalTracer.get());
+  }
+
+  Span activeSpan(final Tracer tracer) {
+    final Tracer.SpanBuilder spanBuilder = tracer.buildSpan("receive")
+        .ignoreActiveSpan()
+        .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
+
+    final SpanContext context = spanContext(tracer);
+    if (context != null) {
+      spanBuilder.addReference(References.FOLLOWS_FROM, context);
+
+      Span span = spanBuilder.start();
+      Tags.COMPONENT.set(span, "akka");
+
     }
+    return spanBuilder.start();
+  }
 
-    public static <T> Object wrap(Span activeSpan, T message) {
-        return wrap(GlobalTracer.get(), activeSpan, message);
-    }
-
-    public static <T> Object wrap(Tracer tracer, Span activeSpan, T message) {
-        if (message == null) {
-            throw new IllegalArgumentException("message cannot be null");
-        }
-
-        if (activeSpan == null) {
-            return message;
-        }
-
-        final Map<String, String> headers = new HashMap<>();
-        tracer.inject(activeSpan.context(), Format.Builtin.TEXT_MAP_INJECT, headers::put);
-        return new DistributedTracedMessage<>(message, headers);
-    }
-
-    private SpanContext spanContext(Tracer tracer) {
-        return tracer.extract(Format.Builtin.TEXT_MAP_EXTRACT, () -> headers.entrySet().iterator());
-    }
-
-    Span activeSpan() {
-        return activeSpan(GlobalTracer.get());
-    }
-
-    Span activeSpan(final Tracer tracer) {
-        final Tracer.SpanBuilder spanBuilder = tracer.buildSpan("receive")
-                .ignoreActiveSpan()
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
-
-        final SpanContext context = spanContext(tracer);
-        if (context != null) {
-            spanBuilder.addReference(References.FOLLOWS_FROM, context);
-
-            Span span = spanBuilder.start();
-            Tags.COMPONENT.set(span, "akka");
-
-        }
-        return spanBuilder.start();
-    }
-
-    public T message() {
-        return message;
-    }
+  public T message() {
+    return message;
+  }
 }
