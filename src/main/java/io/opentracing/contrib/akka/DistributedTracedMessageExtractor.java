@@ -15,17 +15,17 @@ package io.opentracing.contrib.akka;
 
 import akka.cluster.sharding.ShardRegion;
 
-public class TracedMessageExtractor implements ShardRegion.MessageExtractor {
+public class DistributedTracedMessageExtractor implements ShardRegion.MessageExtractor {
   private ShardRegion.MessageExtractor target;
 
-  public TracedMessageExtractor(final ShardRegion.MessageExtractor messageExtractor) {
+  public DistributedTracedMessageExtractor(final ShardRegion.MessageExtractor messageExtractor) {
     this.target = messageExtractor;
   }
 
   @Override
   public String entityId(final Object message) {
-    if (message instanceof TracedMessage) {
-      final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
+    if (message instanceof DistributedTracedMessage) {
+      final DistributedTracedMessage<?> tracedMessage = (DistributedTracedMessage<?>) message;
       return this.target.entityId(tracedMessage.message());
     }
     return this.target.entityId(message);
@@ -33,21 +33,21 @@ public class TracedMessageExtractor implements ShardRegion.MessageExtractor {
 
   @Override
   public Object entityMessage(Object message) {
-    if (message instanceof TracedMessage) {
-      final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
-      Object result = this.target.entityMessage(tracedMessage.message());
-      if (result instanceof TracedMessage) {
+    if (message instanceof DistributedTracedMessage) {
+      final DistributedTracedMessage<?> distributedTracedMessage = (DistributedTracedMessage<?>) message;
+      final Object result = this.target.entityMessage(distributedTracedMessage.message());
+      if (result instanceof DistributedTracedMessage) {
         return result;
       }
-      return TracedMessage.wrap(tracedMessage.activeSpan(), result);
+      return TracedMessage.wrap(distributedTracedMessage.activeSpan(), result);
     }
     return this.target.entityMessage(message);
   }
 
   @Override
   public String shardId(Object message) {
-    if (message instanceof TracedMessage) {
-      final TracedMessage<?> tracedMessage = (TracedMessage<?>) message;
+    if (message instanceof DistributedTracedMessage) {
+      final DistributedTracedMessage<?> tracedMessage = (DistributedTracedMessage<?>) message;
       return this.target.shardId(tracedMessage.message());
     }
     return this.target.shardId(message);
