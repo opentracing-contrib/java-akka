@@ -25,7 +25,7 @@ import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TracedMessageExtractorTest {
+public class DistributedTracedMessageExtractorTest {
 
   private final MockTracer mockTracer = new MockTracer(new ThreadLocalScopeManager());
 
@@ -58,82 +58,82 @@ public class TracedMessageExtractorTest {
   }
 
   @Test
-  public void testEntityIdWithoutTracedMessage() {
+  public void testEntityIdWithoutDistributedTracedMessage() {
     MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+    DistributedTracedMessageExtractor extractor = new DistributedTracedMessageExtractor(
         messageExtractorAdapter);
 
     String message = "foo";
-    String entityId = tracedMessageExtractor.entityId(message);
+    String entityId = extractor.entityId(message);
     assertEquals(entityId, message.getClass().toString());
   }
 
   @Test
-  public void testEntityIdWithTracedMessage() {
+  public void testEntityIdWithDistributedTracedMessage() {
     MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+    DistributedTracedMessageExtractor extractor = new DistributedTracedMessageExtractor(
         messageExtractorAdapter);
 
     String message = "foo";
     Span span = mockTracer.buildSpan("one").start();
-    Object tracedMessage = TracedMessage.wrap(span, message);
-    String entityId = tracedMessageExtractor.entityId(tracedMessage);
+    Object distributedTracedMessage = DistributedTracedMessage.wrap(span, message);
+    String entityId = extractor.entityId(distributedTracedMessage);
     assertEquals(entityId, message.getClass().toString());
   }
 
   @Test
-  public void testShardIdWithoutTracedMessage() {
+  public void testShardIdWithoutDistributedTracedMessage() {
     MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+    DistributedTracedMessageExtractor extractor = new DistributedTracedMessageExtractor(
         messageExtractorAdapter);
 
     String message = "foo";
-    String shardId = tracedMessageExtractor.shardId(message);
+    String shardId = extractor.shardId(message);
     assertEquals(shardId, message.getClass().toString());
   }
 
   @Test
-  public void testShardIdWithTracedMessage() {
+  public void testShardIdWithDistributedTracedMessage() {
     MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+    DistributedTracedMessageExtractor extractor = new DistributedTracedMessageExtractor(
         messageExtractorAdapter);
 
     String message = "foo";
     Span span = mockTracer.buildSpan("one").start();
-    Object tracedMessage = TracedMessage.wrap(span, message);
-    String shardId = tracedMessageExtractor.shardId(tracedMessage);
+    Object distributedTracedMessage = DistributedTracedMessage.wrap(span, message);
+    String shardId = extractor.shardId(distributedTracedMessage);
     assertEquals(shardId, message.getClass().toString());
   }
 
   @Test
-  public void testEntityMessageWithoutTracedMessage() {
+  public void testEntityMessageWithoutDistributedTracedMessage() {
     MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter();
-    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+    DistributedTracedMessageExtractor distributedTracedMessageExtractor = new DistributedTracedMessageExtractor(
         messageExtractorAdapter);
 
     String message = "foo";
-    String shardId = tracedMessageExtractor.shardId(message);
+    String shardId = distributedTracedMessageExtractor.shardId(message);
     assertEquals(message.getClass().toString(), shardId);
   }
 
   @Test
-  public void testEntityMessageWithTracedMessage() {
+  public void testEntityMessageWithDistributedTracedMessage() {
     MessageExtractorAdapter messageExtractorAdapter = new MessageExtractorAdapter() {
       @Override
       public Object entityMessage(Object message) {
         Span span = mockTracer.buildSpan("two").start();
-        return TracedMessage.wrap(span, "other message");
+        return DistributedTracedMessage.wrap(span, "other message");
       }
     };
-    TracedMessageExtractor tracedMessageExtractor = new TracedMessageExtractor(
+    DistributedTracedMessageExtractor extractor = new DistributedTracedMessageExtractor(
         messageExtractorAdapter);
 
     String message = "foo";
     Span span = mockTracer.buildSpan("one").start();
-    Object tracedMessage = TracedMessage.wrap(span, message);
-    Object extractedMessage = tracedMessageExtractor.entityMessage(tracedMessage);
-    assertEquals(TracedMessage.class, extractedMessage.getClass());
-    assertNotEquals(((TracedMessage) tracedMessage).activeSpan(),
-        ((TracedMessage) extractedMessage).activeSpan());
+    Object tracedMessage = DistributedTracedMessage.wrap(span, message);
+    Object extractedMessage = extractor.entityMessage(tracedMessage);
+    assertEquals(DistributedTracedMessage.class, extractedMessage.getClass());
+    assertNotEquals(((DistributedTracedMessage) tracedMessage).activeSpan().context().toTraceId(),
+        ((DistributedTracedMessage) extractedMessage).activeSpan().context().toTraceId());
   }
 }
