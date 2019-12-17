@@ -49,4 +49,11 @@ public final class TracedMessage<T> {
   public T message() {
     return message;
   }
+
+  @Override
+  public String toString() {
+    return "TracedMessage{" +
+            "message=" + message +
+            '}';
+  }
 }
