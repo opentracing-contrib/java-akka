@@ -39,7 +39,7 @@ public class DistributedTracedMessageExtractor implements ShardRegion.MessageExt
       if (result instanceof DistributedTracedMessage) {
         return result;
       }
-      return TracedMessage.wrap(distributedTracedMessage.activeSpan(), result);
+      return DistributedTracedMessage.wrap(distributedTracedMessage.activeSpan(), result);
     }
     return this.target.entityMessage(message);
   }
