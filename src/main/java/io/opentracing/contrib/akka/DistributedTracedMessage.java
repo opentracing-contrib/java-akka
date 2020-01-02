@@ -69,17 +69,14 @@ public final class DistributedTracedMessage<T> {
   }
 
   Span activeSpan(final Tracer tracer) {
-    final Tracer.SpanBuilder spanBuilder = tracer.buildSpan("receive")
+    Tracer.SpanBuilder spanBuilder = tracer.buildSpan("receive")
         .ignoreActiveSpan()
-        .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER);
+        .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
+        .withTag(Tags.COMPONENT, "java-akka");
 
     final SpanContext context = spanContext(tracer);
     if (context != null) {
-      spanBuilder.addReference(References.FOLLOWS_FROM, context);
-
-      Span span = spanBuilder.start();
-      Tags.COMPONENT.set(span, "akka");
-
+      spanBuilder = spanBuilder.addReference(References.FOLLOWS_FROM, context);
     }
     return spanBuilder.start();
   }

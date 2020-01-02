@@ -40,6 +40,8 @@ public interface DistributedTracedActor extends Actor {
 
       try (Scope ignored = tracer.scopeManager().activate(span)) {
         superConsumer.accept(receive, originalMessage);
+      } finally {
+        span.finish();
       }
     }
   }
