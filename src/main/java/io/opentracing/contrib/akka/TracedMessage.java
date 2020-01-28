@@ -53,7 +53,7 @@ public final class TracedMessage<T> {
   @Override
   public String toString() {
     return "TracedMessage{" +
-            "message=" + message +
-            '}';
+        "message=" + message +
+        '}';
   }
 }
